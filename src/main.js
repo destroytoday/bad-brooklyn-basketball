@@ -1,7 +1,14 @@
 import Vue from 'vue'
 import Firebase from 'firebase'
+import * as FirebaseUI from 'firebaseui'
+import Vuetify from 'vuetify'
 import App from './app.vue'
 
+import 'firebaseui/dist/firebaseui.css'
+import 'vuetify/dist/vuetify.min.css'
+import 'material-design-icons-iconfont/dist/material-design-icons.css'
+
+Vue.use(Vuetify)
 Vue.config.productionTip = false
 
 Firebase.initializeApp({
@@ -14,5 +21,10 @@ Firebase.initializeApp({
 })
 
 new Vue({
-  render: h => h(App)
+  render: h => h(App),
+  provide () {
+    return {
+      $authUI: new FirebaseUI.auth.AuthUI(Firebase.auth()),
+    }
+  },
 }).$mount('#app')

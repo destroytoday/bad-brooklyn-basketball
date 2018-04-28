@@ -9,7 +9,10 @@
   },
   "dependencies": {
     "firebase": "^4.13.1",
-    "vue": "^2.5.16"
+    "firebaseui": "^2.7.0",
+    "material-design-icons-iconfont": "^3.0.3",
+    "vue": "^2.5.16",
+    "vuetify": "^1.0.17"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.0.0-beta.9",

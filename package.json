@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "firebase": "^4.13.1",
     "vue": "^2.5.16"
   },
   "devDependencies": {

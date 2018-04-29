@@ -1,6 +1,9 @@
 <template>
   <div id='app'>
-    <div v-if='user'>Logged in as: {{ user.email }} <a href='#' @click.prevent='signout'>Sign Out</a></div>
+    <div v-if='user'>
+      Logged in as: {{ user.displayName }} ({{ user.email }})<br>
+      <a href='#' @click.prevent='signout'>Sign Out</a>
+    </div>
     <div v-else-if='isAuthorizing'>Authorizing&hellip;</div>
     <div
       v-show='!user && !isAuthorizing'
@@ -11,6 +14,7 @@
 
 <script>
 import Firebase from 'firebase'
+import { auth } from './firebase'
 
 export default {
   inject: ['$authUI'],
@@ -24,7 +28,7 @@ export default {
   },
 
   created () {
-    Firebase.auth().onAuthStateChanged((user) => {
+    auth.onAuthStateChanged((user) => {
       this.user = user
       this.isAuthorizing = this.$authUI.isPendingRedirect()
 
@@ -51,7 +55,7 @@ export default {
 
   methods: {
     signout () {
-      Firebase.auth().signOut()
+      auth.signOut()
     },
   },
 }

@@ -1,7 +1,7 @@
 <template>
   <div id='app'>
     <div v-if='user'>
-      Logged in as: {{ user.displayName }} ({{ user.email }})<br>
+      Logged in as: {{ user.displayName || user.email }}<br>
       <a href='#' @click.prevent='signout'>Sign Out</a>
     </div>
     <div v-else-if='isAuthorizing'>Authorizing&hellip;</div>
@@ -9,12 +9,14 @@
       v-show='!user && !isAuthorizing'
       id='firebaseui-auth-container'
     ></div>
+
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
 import Firebase from 'firebase'
-import { auth } from './firebase'
+import { db, auth } from './firebase'
 
 export default {
   inject: ['$authUI'],
@@ -33,6 +35,11 @@ export default {
       this.isAuthorizing = this.$authUI.isPendingRedirect()
 
       if (user) {
+        db.ref('users').child(user.uid).update({
+          name: user.displayName,
+          email: user.email,
+        })
+
         user.getIdToken().then((accessToken) => {
           this.accessToken = accessToken
         })
@@ -69,7 +76,6 @@ export default {
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
-    margin-top: 60px;
   }
 
 </style>

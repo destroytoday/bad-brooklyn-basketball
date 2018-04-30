@@ -11,17 +11,15 @@
 
 <script>
   import {
-    startOfWeek,
-    endOfWeek,
+    addDays,
     eachDay,
   } from 'date-fns'
 
   import { db } from '../firebase'
   import BbScheduleColumn from './schedule_column'
 
-  const weekOptions = { weekStartsOn: 1 }
-  const startDate = startOfWeek(new Date, weekOptions)
-  const endDate = endOfWeek(new Date, weekOptions)
+  const startDate = new Date
+  const endDate = addDays(new Date, 6)
 
   export default {
     components: {

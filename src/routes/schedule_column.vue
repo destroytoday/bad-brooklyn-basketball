@@ -5,6 +5,35 @@
       {{ date | date('MMM D') }}
     </header>
 
+    <div style='display: flex'>
+      <select
+        v-model='datetime'
+      >
+        <option
+          v-for='time in times'
+          :key='time'
+          :value='time'
+        >{{ time | date('h:mma') }}</option>
+      </select>
+
+      <button
+        class='bb-schedule-column__button'
+        style='flex: 1'
+        @click='setResponse({ isIn: true, datetime })'
+      >
+        <span v-if='!response || !response.isIn'>I’m in</span>
+        <span v-else>Update Time</span>
+      </button>
+    </div>
+
+    <button
+      v-if='!response || response.isIn'
+      class='bb-schedule-column__button'
+      @click='setResponse({ isIn: false, datetime: date.getTime() })'
+    >
+      <span v-if='response && response.isIn'>Actually,</span> I’m out
+    </button>
+
     <ul class='bb-schedule-column__list'>
       <li
         v-for='response in responses'
@@ -12,25 +41,25 @@
         class='bb-schedule-column__item'
       >
         {{ response.user.displayName }}
+        is
+        <span v-if='response.isIn'>in for {{ response.datetime | date('h:mma') }}</span>
+        <span v-else>out</span>
       </li>
     </ul>
-
-    <button
-      class='bb-schedule-column__button'
-      @click='setResponse(!response || !response.isIn)'
-    >
-      <span v-if='response && response.isIn'>I’m out</span>
-      <span v-else>I’m in</span>
-    </button>
   </div>
 </template>
 
 <script>
   import {
+    getDay,
+    setHours,
+    setMinutes,
     format as formatDate,
   } from 'date-fns'
 
   import { db, auth } from '../firebase'
+
+  const defaultTimes = [9, 18, 18, 18, 18, 7, 9]
 
   export default {
     filters: {
@@ -48,17 +77,36 @@
       },
     },
 
+    data () {
+      return {
+        datetime: null,
+      }
+    },
+
+    created () {
+      this.datetime = setHours(this.date, defaultTimes[getDay(this.date)]).getTime()
+    },
+
     computed: {
       response () {
         return this.responses.find(({ user }) => user.uid === auth.currentUser.uid)
       },
+
+      times () {
+        const minHour = 7
+        const maxHour = 21
+
+        return Array((maxHour - minHour) * 2).fill().map((_, n) => {
+          return setMinutes(this.date, (minHour + n / 2) * 60).getTime()
+        })
+      },
     },
 
     methods: {
-      setResponse (isIn) {
+      setResponse ({ isIn, datetime }) {
         if (!this.response) {
           db.ref('responses').push({
-            date: this.date.getTime(),
+            datetime,
             isIn,
             user: {
               uid: auth.currentUser.uid,
@@ -66,7 +114,7 @@
             },
           })
         } else {
-          db.ref('responses').child(this.response['.key']).remove()
+          db.ref('responses').child(this.response['.key']).update({ datetime, isIn })
         }
       },
     },

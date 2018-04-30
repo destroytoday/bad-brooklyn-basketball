@@ -13,13 +13,15 @@
   import {
     addDays,
     eachDay,
+    endOfDay,
+    isSameDay,
   } from 'date-fns'
 
   import { db } from '../firebase'
   import BbScheduleColumn from './schedule_column'
 
   const startDate = new Date
-  const endDate = addDays(new Date, 6)
+  const endDate = endOfDay(addDays(new Date, 6))
 
   export default {
     components: {
@@ -28,7 +30,7 @@
 
     firebase: {
       $responses: db.ref('responses')
-        .orderByChild('date')
+        .orderByChild('datetime')
         .startAt(startDate.getTime())
         .endAt(endDate.getTime()),
     },
@@ -38,7 +40,7 @@
         return eachDay(startDate, endDate).map((date) => ({
           key: date.toString(),
           date,
-          responses: this.$responses.filter((response) => response.date === date.getTime()),
+          responses: this.$responses.filter((response) => isSameDay(response.datetime, date)),
         }))
       },
     },
